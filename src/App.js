@@ -1,67 +1,90 @@
-import React, { Component,useState } from 'react';
+import React, { Component } from 'react';
 import './App.css';
 import Person from './Person/Person';
 
-const app = props => {
 
-    const [personsState, setPersonsState] = useState({
+class App extends Component {
+
+    state ={
       persons: [
-        {name: 'Max', age: 28},
-        {name: 'Manu', age: 29},
-        {name: 'Stephanie', age: 26},
-      ]
-    });
+        {id: 'asd', name: 'Max', age: 28},
+        {id: 'agdsfg', name: 'Manu', age: 29},
+        {id: 'asfgs3', name: 'Stephanie', age: 26},
+      ],
+      showPersons: false,
+      otherState: 'some other value',
+    };
 
-    const [otherState, setOtherState] = useState('some other value');
-
-    console.log(personsState,otherState)
-
-    const switchNameHandler = () => {
-      // console.log('Was clicked');
-      // DON'T DO THIS this.state.persons[0].name='Maximilian';
-      setPersonsState({
-        persons: [
-          {name: 'Maximilian', age: 28},
-          {name: 'Manu', age: 29},
-          {name: 'Stephanie', age: 27},
-        ],
-        otherState: personsState.otherState
-      });
+    deletePersonHandler = (personIndex) => {
+      // const persons = this.state.persons.slice();
+      const persons = [...this.state.persons];
+      persons.splice(personIndex,1);
+      this.setState({persons: persons});
     }
 
-    return (
-      <div className="App">
-        <h1>Hi, I'm a react app</h1>
-        <p>This is really working!</p>
-        <button onClick={switchNameHandler}>Switch Name</button>
-        <Person name={personsState.persons[0].name} age={personsState.persons[0].age} />
-        <Person name={personsState.persons[1].name} age={personsState.persons[1].age}>My Hobbies: Racing</Person>
-        <Person name={personsState.persons[2].name} age={personsState.persons[2].age} />
-      </div>
-    );
+    nameChangedHandler = (event, id) => {
+      const personIndex = this.state.persons.findIndex(p => {
+        return p.id===id;
+      })
+
+      // const person = Object.assign({}, this.state.persons[person])
+      const person = {
+        ...this.state.persons[personIndex]
+      };
+
+      person.name=event.target.value;
+
+      const persons = [...this.state.persons];
+      persons[personIndex] = person;
+      
+      
+      this.setState({persons: persons});
+    }
+
+    togglePersonsHandler = () => {
+      const doesShow = this.state.showPersons;
+      this.setState({showPersons: !doesShow});
+    }
+
+    render(){
+
+      let persons = null;
+
+      if (this.state.showPersons) {
+        persons = (
+          <div>
+            {this.state.persons.map((person, index) => {
+              return <Person 
+                click={()=>{this.deletePersonHandler(index)}}
+                name={person.name} 
+                age={person.age}
+                key={person.id}
+                changed={(event) => {this.nameChangedHandler(event, person.id)}} />
+            })}
+            </div>
+        )
+      }
+
+      const classes = [];
+      if (this.state.persons.length <= 2){
+        classes.push('red'); //classes = ['red']
+      }
+      if(this.state.persons.length <= 1){
+        classes.push('bold');
+      }
+
+      return (
+          <div className="App">
+            <h1>Hi, I'm a react app</h1>
+            <p className={classes.join(' ')}>This is really working!</p>
+            <button className="button" onClick={this.togglePersonsHandler}>
+              Toggle Persons
+            </button>
+            {persons}
+          </div>       
+      );
+    }
     // return React.createElement('div', null, React.createElement('h1', {className: 'App'}, 'Does this work now?'));
 }
 
-export default app;
-
-
-// state = {
-//   persons: [
-//     {name: 'Max', age: 28},
-//     {name: 'Manu', age: 29},
-//     {name: 'Stephanie', age: 26},
-//   ],
-//   otherState: 'some other value'
-// }
-
-// switchNameHandler = () => {
-//   // console.log('Was clicked');
-//   // DON'T DO THIS this.state.persons[0].name='Maximilian';
-//   this.setState({
-//     persons: [
-//       {name: 'Maximilian', age: 28},
-//       {name: 'Manu', age: 29},
-//       {name: 'Stephanie', age: 27},
-//     ]
-//   });
-// }
+export default App;
